@@ -12,6 +12,7 @@ from app.core.security import create_access_token
 from app.db.session import engine
 from app.db import models
 from app.routers import leaves
+from app.routers import salary
 
 
 # Load environment variables
@@ -41,7 +42,7 @@ app.add_middleware(
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(users.router, prefix="/users", tags=["users"])
 app.include_router(leaves.router, prefix="/api/v1", tags=["leaves"])
-
+app.include_router(salary.router, prefix="/api/v1", tags=["salary"])
 @app.get("/")
 def root():
     return {"message": "Welcome to HRMS API. See /docs for API documentation."}

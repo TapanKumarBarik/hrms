@@ -1,5 +1,5 @@
 # app/db/models.py
-from sqlalchemy import Column, String, ForeignKey, Date, Boolean, DateTime,Integer
+from sqlalchemy import Column, String, ForeignKey, Date, Boolean, DateTime, Integer, Float, JSON
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -149,3 +149,66 @@ class LeaveBalance(Base):
 
 # Update User model to include leave balances
 User.leave_balances = relationship("LeaveBalance", back_populates="user")
+
+
+
+
+
+
+
+class Salary(Base):
+    __tablename__ = "salaries"
+
+    id = Column(String(36), primary_key=True, index=True)
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
+    basic_salary = Column(Float, nullable=False)
+    allowances = Column(Float, default=0)
+    deductions = Column(Float, default=0)
+    gross_salary = Column(Float, nullable=False)
+    net_salary = Column(Float, nullable=False)
+    effective_date = Column(Date, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    user = relationship("User", back_populates="salaries")
+
+class Payslip(Base):
+    __tablename__ = "payslips"
+
+    id = Column(String(36), primary_key=True, index=True)
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
+    month = Column(Integer, nullable=False)
+    year = Column(Integer, nullable=False)
+    basic_salary = Column(Float, nullable=False)
+    allowances = Column(Float, default=0)
+    deductions = Column(Float, default=0)
+    gross_salary = Column(Float, nullable=False)
+    net_salary = Column(Float, nullable=False)
+    tax_deducted = Column(Float, default=0)
+    status = Column(String(20), default="draft")  # draft, generated, approved
+    generated_at = Column(DateTime)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    user = relationship("User", back_populates="payslips")
+
+class TaxInfo(Base):
+    __tablename__ = "tax_info"
+
+    id = Column(String(36), primary_key=True, index=True)
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False, unique=True)
+    pan_number = Column(String(10))
+    tax_regime = Column(String(20))  # old, new
+    tax_declarations = Column(JSON)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    user = relationship("User", back_populates="tax_info")
+
+# Update User model to include relationships
+User.salaries = relationship("Salary", back_populates="user")
+User.payslips = relationship("Payslip", back_populates="user")
+User.tax_info = relationship("TaxInfo", back_populates="user", uselist=False)
