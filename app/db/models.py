@@ -32,6 +32,7 @@ class User(Base):
                               remote_side=[id])
     leaves = relationship("Leave", back_populates="user")
     attendance = relationship("Attendance", back_populates="user")
+    
 
 class Department(Base):
     __tablename__ = "departments"
@@ -212,3 +213,39 @@ class TaxInfo(Base):
 User.salaries = relationship("Salary", back_populates="user")
 User.payslips = relationship("Payslip", back_populates="user")
 User.tax_info = relationship("TaxInfo", back_populates="user", uselist=False)
+
+
+class Course(Base):
+    __tablename__ = "courses"
+
+    id = Column(String(36), primary_key=True, index=True)
+    title = Column(String(200), nullable=False)
+    description = Column(String(1000))
+    duration = Column(Integer)  # in hours
+    category = Column(String(100))
+    status = Column(String(20), default="active")  # active, inactive
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Add relationship after all classes are defined
+    enrollments = relationship("CourseEnrollment", back_populates="course")
+
+class CourseEnrollment(Base):
+    __tablename__ = "course_enrollments"
+
+    id = Column(String(36), primary_key=True, index=True)
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
+    course_id = Column(String(36), ForeignKey("courses.id"), nullable=False)
+    status = Column(String(20), default="enrolled")  # enrolled, completed, dropped
+    assigned_by = Column(String(36), ForeignKey("users.id"))
+    completion_date = Column(DateTime)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships will be defined later
+
+
+User.enrollments = relationship("CourseEnrollment", foreign_keys=[CourseEnrollment.user_id], back_populates="user")
+CourseEnrollment.user = relationship("User", foreign_keys=[CourseEnrollment.user_id], back_populates="enrollments")
+CourseEnrollment.assigner = relationship("User", foreign_keys=[CourseEnrollment.assigned_by])
+Course.enrollments = relationship("CourseEnrollment", back_populates="course")
