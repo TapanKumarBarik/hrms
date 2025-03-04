@@ -420,3 +420,48 @@ class EmployeeBenefit(Base):
 
 # Update User model to include benefits relationship
 User.benefits = relationship("EmployeeBenefit", back_populates="user")
+
+
+
+class PerformanceRating(Base):
+    __tablename__ = "performance_ratings"
+
+    id = Column(String(36), primary_key=True, index=True)
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
+    rated_by = Column(String(36), ForeignKey("users.id"), nullable=False)
+    rating = Column(Float, nullable=False)  # 1-5 scale
+    category = Column(String(50))  # technical, soft skills, leadership, etc.
+    period_start = Column(Date, nullable=False)
+    period_end = Column(Date, nullable=False)
+    comments = Column(String(1000))
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    user = relationship("User", foreign_keys=[user_id], back_populates="ratings")
+    rater = relationship("User", foreign_keys=[rated_by])
+
+class PerformanceReview(Base):
+    __tablename__ = "performance_reviews"
+
+    id = Column(String(36), primary_key=True, index=True)
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
+    reviewer_id = Column(String(36), ForeignKey("users.id"), nullable=False)
+    review_period = Column(String(50))  # Q1-2023, H1-2023, etc.
+    overall_rating = Column(Float)
+    achievements = Column(String(2000))
+    areas_of_improvement = Column(String(1000))
+    goals = Column(String(1000))
+    status = Column(String(20), default="draft")  # draft, submitted, approved
+    submitted_at = Column(DateTime)
+    approved_at = Column(DateTime)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    user = relationship("User", foreign_keys=[user_id], back_populates="reviews")
+    reviewer = relationship("User", foreign_keys=[reviewer_id])
+
+# Update User model to include relationships
+User.ratings = relationship("PerformanceRating", foreign_keys=[PerformanceRating.user_id], back_populates="user")
+User.reviews = relationship("PerformanceReview", foreign_keys=[PerformanceReview.user_id], back_populates="user")
