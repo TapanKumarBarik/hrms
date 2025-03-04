@@ -1,5 +1,5 @@
 # app/db/models.py
-from sqlalchemy import Column, String, ForeignKey, Date, Boolean, DateTime
+from sqlalchemy import Column, String, ForeignKey, Date, Boolean, DateTime,Integer
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -94,9 +94,11 @@ class Leave(Base):
     reason = Column(String(500))
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
+    leave_type_id = Column(String(36), ForeignKey("leave_types.id"), nullable=False)
+    
     # Relationships
     user = relationship("User", back_populates="leaves")
+    leave_type = relationship("LeaveType", back_populates="leaves")  # Add this line
 
 class Attendance(Base):
     __tablename__ = "attendance"
@@ -113,3 +115,37 @@ class Attendance(Base):
 
     # Relationships
     user = relationship("User", back_populates="attendance")
+
+
+class LeaveType(Base):
+    __tablename__ = "leave_types"
+
+    id = Column(String(36), primary_key=True, index=True)
+    name = Column(String(100), nullable=False)
+    description = Column(String(500))
+    default_days = Column(Integer, default=0)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    leaves = relationship("Leave", back_populates="leave_type")
+
+class LeaveBalance(Base):
+    __tablename__ = "leave_balances"
+
+    id = Column(String(36), primary_key=True, index=True)
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
+    leave_type_id = Column(String(36), ForeignKey("leave_types.id"), nullable=False)
+    year = Column(Integer, nullable=False)
+    total_days = Column(Integer, default=0)
+    used_days = Column(Integer, default=0)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    user = relationship("User", back_populates="leave_balances")
+    leave_type = relationship("LeaveType")
+
+# Update User model to include leave balances
+User.leave_balances = relationship("LeaveBalance", back_populates="user")

@@ -11,6 +11,8 @@ from app.core.config import settings
 from app.core.security import create_access_token
 from app.db.session import engine
 from app.db import models
+from app.routers import leaves
+
 
 # Load environment variables
 load_dotenv()
@@ -33,9 +35,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+
 # Include routers
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(users.router, prefix="/users", tags=["users"])
+app.include_router(leaves.router, prefix="/api/v1", tags=["leaves"])
 
 @app.get("/")
 def root():
