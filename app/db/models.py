@@ -280,3 +280,73 @@ class EmployeeCertification(Base):
 
 # Update User model to include certifications relationship
 User.certifications = relationship("EmployeeCertification", back_populates="user")
+
+
+
+class OnboardingTask(Base):
+    __tablename__ = "onboarding_tasks"
+
+    id = Column(String(36), primary_key=True, index=True)
+    title = Column(String(200), nullable=False)
+    description = Column(String(1000))
+    department_id = Column(String(36), ForeignKey("departments.id"))
+    role_id = Column(String(36), ForeignKey("roles.id"))
+    priority = Column(String(20), default="medium")  # low, medium, high
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    department = relationship("Department")
+    role = relationship("Role")
+
+class OffboardingTask(Base):
+    __tablename__ = "offboarding_tasks"
+
+    id = Column(String(36), primary_key=True, index=True)
+    title = Column(String(200), nullable=False)
+    description = Column(String(1000))
+    department_id = Column(String(36), ForeignKey("departments.id"))
+    priority = Column(String(20), default="medium")  # low, medium, high
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    department = relationship("Department")
+
+class EmployeeOnboarding(Base):
+    __tablename__ = "employee_onboarding"
+
+    id = Column(String(36), primary_key=True, index=True)
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
+    task_id = Column(String(36), ForeignKey("onboarding_tasks.id"), nullable=False)
+    status = Column(String(20), default="pending")  # pending, in_progress, completed
+    completed_at = Column(DateTime)
+    notes = Column(String(1000))
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    user = relationship("User", back_populates="onboarding_tasks")
+    task = relationship("OnboardingTask")
+
+class EmployeeOffboarding(Base):
+    __tablename__ = "employee_offboarding"
+
+    id = Column(String(36), primary_key=True, index=True)
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
+    task_id = Column(String(36), ForeignKey("offboarding_tasks.id"), nullable=False)
+    status = Column(String(20), default="pending")  # pending, in_progress, completed
+    completed_at = Column(DateTime)
+    notes = Column(String(1000))
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    user = relationship("User", back_populates="offboarding_tasks")
+    task = relationship("OffboardingTask")
+
+# Update User model to include relationships
+User.onboarding_tasks = relationship("EmployeeOnboarding", back_populates="user")
+User.offboarding_tasks = relationship("EmployeeOffboarding", back_populates="user")
