@@ -385,3 +385,38 @@ class PolicyAcknowledgment(Base):
 
 # Update User model to include policy acknowledgments
 User.policy_acknowledgments = relationship("PolicyAcknowledgment", back_populates="user")
+
+
+class Benefit(Base):
+    __tablename__ = "benefits"
+
+    id = Column(String(36), primary_key=True, index=True)
+    name = Column(String(200), nullable=False)
+    description = Column(String(1000))
+    type = Column(String(50))  # health, insurance, allowance, etc.
+    amount = Column(Float)  # monetary value if applicable
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    employee_benefits = relationship("EmployeeBenefit", back_populates="benefit")
+
+class EmployeeBenefit(Base):
+    __tablename__ = "employee_benefits"
+
+    id = Column(String(36), primary_key=True, index=True)
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
+    benefit_id = Column(String(36), ForeignKey("benefits.id"), nullable=False)
+    start_date = Column(Date, nullable=False)
+    end_date = Column(Date)
+    status = Column(String(20), default="active")  # active, inactive
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    user = relationship("User", back_populates="benefits")
+    benefit = relationship("Benefit", back_populates="employee_benefits")
+
+# Update User model to include benefits relationship
+User.benefits = relationship("EmployeeBenefit", back_populates="user")

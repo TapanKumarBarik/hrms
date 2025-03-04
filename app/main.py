@@ -17,6 +17,7 @@ from app.routers import courses
 from app.routers import certifications
 from app.routers import onboarding
 from app.routers import policies
+from app.routers import benefits
 
 
 # Load environment variables
@@ -51,6 +52,8 @@ app.include_router(courses.router, prefix="/api/v1", tags=["courses"])
 app.include_router(certifications.router, prefix="/api/v1", tags=["certifications"])
 app.include_router(onboarding.router, prefix="/api/v1", tags=["onboarding"])
 app.include_router(policies.router, prefix="/api/v1", tags=["policies"])
+app.include_router(benefits.router, prefix="/api/v1", tags=["benefits"])
+
 
 @app.get("/")
 def root():
