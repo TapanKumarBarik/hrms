@@ -1,0 +1,13 @@
+.env
+
+README.txt
+__pycache__/main.cpython-310.pyc
+
+app/__pycache__/*
+app/core/auth.py
+app/core/__pycache__/*
+app/db/__pycache__/
+app/routers/__pycache__/*
+app/schemas/__pycache__/*
+migrations/versions/__pycache__/
+migrations/__pycache__/
