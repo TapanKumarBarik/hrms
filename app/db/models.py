@@ -227,7 +227,7 @@ class Course(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    # Add relationship after all classes are defined
+    # Define the relationship only once here
     enrollments = relationship("CourseEnrollment", back_populates="course")
 
 class CourseEnrollment(Base):
@@ -242,10 +242,41 @@ class CourseEnrollment(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    # Relationships will be defined later
-
-
+# Just define these relationships - remove the Course.enrollments line
 User.enrollments = relationship("CourseEnrollment", foreign_keys=[CourseEnrollment.user_id], back_populates="user")
 CourseEnrollment.user = relationship("User", foreign_keys=[CourseEnrollment.user_id], back_populates="enrollments")
 CourseEnrollment.assigner = relationship("User", foreign_keys=[CourseEnrollment.assigned_by])
-Course.enrollments = relationship("CourseEnrollment", back_populates="course")
+
+class CertificationType(Base):
+    __tablename__ = "certification_types"
+
+    id = Column(String(36), primary_key=True, index=True)
+    name = Column(String(200), nullable=False)
+    description = Column(String(1000))
+    issuing_organization = Column(String(200))
+    validity_period = Column(Integer)  # in months
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    certifications = relationship("EmployeeCertification", back_populates="certification_type")
+
+class EmployeeCertification(Base):
+    __tablename__ = "employee_certifications"
+
+    id = Column(String(36), primary_key=True, index=True)
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
+    certification_type_id = Column(String(36), ForeignKey("certification_types.id"), nullable=False)
+    certification_number = Column(String(100))
+    issue_date = Column(Date, nullable=False)
+    expiry_date = Column(Date)
+    status = Column(String(20), default="active")  # active, expired, revoked
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    user = relationship("User", back_populates="certifications")
+    certification_type = relationship("CertificationType", back_populates="certifications")
+
+# Update User model to include certifications relationship
+User.certifications = relationship("EmployeeCertification", back_populates="user")

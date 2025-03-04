@@ -14,7 +14,7 @@ from app.db import models
 from app.routers import leaves
 from app.routers import salary
 from app.routers import courses
-
+from app.routers import certifications
 
 # Load environment variables
 load_dotenv()
@@ -45,6 +45,7 @@ app.include_router(users.router, prefix="/users", tags=["users"])
 app.include_router(leaves.router, prefix="/api/v1", tags=["leaves"])
 app.include_router(salary.router, prefix="/api/v1", tags=["salary"])
 app.include_router(courses.router, prefix="/api/v1", tags=["courses"])
+app.include_router(certifications.router, prefix="/api/v1", tags=["certifications"])
 @app.get("/")
 def root():
     return {"message": "Welcome to HRMS API. See /docs for API documentation."}
