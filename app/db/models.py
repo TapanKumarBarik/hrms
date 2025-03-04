@@ -350,3 +350,38 @@ class EmployeeOffboarding(Base):
 # Update User model to include relationships
 User.onboarding_tasks = relationship("EmployeeOnboarding", back_populates="user")
 User.offboarding_tasks = relationship("EmployeeOffboarding", back_populates="user")
+
+
+class Policy(Base):
+    __tablename__ = "policies"
+
+    id = Column(String(36), primary_key=True, index=True)
+    title = Column(String(200), nullable=False)
+    description = Column(String(2000))
+    category = Column(String(100))  # HR, IT, Security, etc.
+    version = Column(String(20))
+    effective_date = Column(Date)
+    status = Column(String(20), default="draft")  # draft, active, archived
+    is_mandatory = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    acknowledgments = relationship("PolicyAcknowledgment", back_populates="policy")
+
+class PolicyAcknowledgment(Base):
+    __tablename__ = "policy_acknowledgments"
+
+    id = Column(String(36), primary_key=True, index=True)
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
+    policy_id = Column(String(36), ForeignKey("policies.id"), nullable=False)
+    acknowledged_at = Column(DateTime, nullable=False)
+    version_acknowledged = Column(String(20), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Relationships
+    user = relationship("User", back_populates="policy_acknowledgments")
+    policy = relationship("Policy", back_populates="acknowledgments")
+
+# Update User model to include policy acknowledgments
+User.policy_acknowledgments = relationship("PolicyAcknowledgment", back_populates="user")
