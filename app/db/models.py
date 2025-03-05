@@ -465,3 +465,47 @@ class PerformanceReview(Base):
 # Update User model to include relationships
 User.ratings = relationship("PerformanceRating", foreign_keys=[PerformanceRating.user_id], back_populates="user")
 User.reviews = relationship("PerformanceReview", foreign_keys=[PerformanceReview.user_id], back_populates="user")
+
+
+
+
+class Project(Base):
+    __tablename__ = "projects"
+
+    id = Column(String(36), primary_key=True, index=True)
+    name = Column(String(200), nullable=False)
+    description = Column(String(1000))
+    client_name = Column(String(200))
+    start_date = Column(Date)
+    end_date = Column(Date)
+    status = Column(String(20), default="active")  # active, completed, on_hold, cancelled
+    priority = Column(String(20), default="medium")  # low, medium, high
+    budget = Column(Float)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    assignments = relationship("ProjectAssignment", back_populates="project")
+
+class ProjectAssignment(Base):
+    __tablename__ = "project_assignments"
+
+    id = Column(String(36), primary_key=True, index=True)
+    project_id = Column(String(36), ForeignKey("projects.id"), nullable=False)
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
+    role = Column(String(50))  # project_manager, team_lead, developer, etc.
+    assigned_by = Column(String(36), ForeignKey("users.id"))
+    start_date = Column(Date)
+    end_date = Column(Date)
+    allocation_percentage = Column(Integer, default=100)  # time allocation in percentage
+    status = Column(String(20), default="active")  # active, completed, removed
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    project = relationship("Project", back_populates="assignments")
+    user = relationship("User", foreign_keys=[user_id], back_populates="project_assignments")
+    assigner = relationship("User", foreign_keys=[assigned_by])
+
+# Update User model to include project assignments
+User.project_assignments = relationship("ProjectAssignment", foreign_keys=[ProjectAssignment.user_id], back_populates="user")
