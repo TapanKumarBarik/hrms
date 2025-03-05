@@ -20,6 +20,7 @@ from app.routers import policies
 from app.routers import benefits
 from app.routers import performance
 from app.routers import projects
+from app.routers import attendance
 
 # Load environment variables
 load_dotenv()
@@ -56,6 +57,7 @@ app.include_router(policies.router, prefix="/api/v1", tags=["policies"])
 app.include_router(benefits.router, prefix="/api/v1", tags=["benefits"])
 app.include_router(performance.router, prefix="/api/v1", tags=["performance"])
 app.include_router(projects.router, prefix="/api/v1", tags=["projects"])
+app.include_router(attendance.router, prefix="/api/v1", tags=["attendance"])
 
 @app.get("/")
 def root():
