@@ -242,10 +242,14 @@ class CourseEnrollment(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+    course = relationship("Course", back_populates="enrollments")
+    
+    
 # Just define these relationships - remove the Course.enrollments line
 User.enrollments = relationship("CourseEnrollment", foreign_keys=[CourseEnrollment.user_id], back_populates="user")
 CourseEnrollment.user = relationship("User", foreign_keys=[CourseEnrollment.user_id], back_populates="enrollments")
 CourseEnrollment.assigner = relationship("User", foreign_keys=[CourseEnrollment.assigned_by])
+
 
 class CertificationType(Base):
     __tablename__ = "certification_types"

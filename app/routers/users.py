@@ -139,13 +139,6 @@ async def search_users(
         current_user: models.User = Depends(get_current_user_with_permissions),
         db: Session = Depends(get_db)
 ):
-    # Check permissions - only managers, HR, and Admin can search users
-    if current_user.role.name not in ["Manager", "HR", "Admin"]:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not enough permissions to search users"
-        )
-
     # Build query
     query = db.query(models.User)
 
